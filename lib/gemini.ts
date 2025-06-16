@@ -3,6 +3,32 @@
 const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent";
 
+function formatFocusLogs(focusLogs: any[] = []) {
+  if (!focusLogs.length) return "None yet.";
+  return focusLogs
+    .map(
+      (log) =>
+        `- [${new Date(log.chosenAt).toLocaleDateString()}] Focused on ${
+          log.stat
+        } after completing "${log.questTitle}"`
+    )
+    .join("\n");
+}
+
+function formatCompletedQuests(completedQuests: any[] = []) {
+  if (!completedQuests.length) return "None yet.";
+  return completedQuests
+    .map(
+      (q) =>
+        `- [${new Date(q.completedAt).toLocaleDateString()}] "${
+          q.questTitle
+        }" (Rewards: ${q.rewards
+          ?.map((r: any) => r.type + ": " + r.value)
+          .join(", ")})`
+    )
+    .join("\n");
+}
+
 const USER_CONTEXT = `
 You are a game designer, personal development coach, and psychological strategist. You are creating a Solo Leveling inspired stat-based self-improvement system for the user, based on the RPG format where stats define potential and quests are designed to evolve them. Be extremely structured and detailed.
 
@@ -33,6 +59,16 @@ Here’s the user's full personal profile and traits that must inform quest desi
 - Perception: {perception}
 
 User wants to improve both Strength and Intelligence first — is actively working on them.
+
+---
+
+### QUEST HISTORY:
+
+#### Focus Logs (stat user chose to focus on after each quest):
+{focusLogs}
+
+#### Completed Quests:
+{completedQuests}
 
 ---
 
@@ -103,17 +139,21 @@ All fields must be present. Use clear, concise text. No markdown, no special cha
 `;
 
 export async function getGeminiQuests(
-  stats: Record<string, number>
+  stats: Record<string, number>,
+  focusLogs: any[] = [],
+  completedQuests: any[] = []
 ): Promise<any> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY not set in environment");
 
-  // Fill in the stats in the context
+  // Fill in the stats and logs in the context
   const prompt = USER_CONTEXT.replace("{strength}", String(stats.strength ?? 0))
     .replace("{agility}", String(stats.agility ?? 0))
     .replace("{vitality}", String(stats.vitality ?? 0))
     .replace("{intelligence}", String(stats.intelligence ?? 0))
-    .replace("{perception}", String(stats.perception ?? 0));
+    .replace("{perception}", String(stats.perception ?? 0))
+    .replace("{focusLogs}", formatFocusLogs(focusLogs))
+    .replace("{completedQuests}", formatCompletedQuests(completedQuests));
 
   console.log("[Gemini] Prompt:", prompt);
 

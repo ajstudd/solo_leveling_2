@@ -19,6 +19,25 @@ const UserSchema = new Schema(
         changedAt: { type: Date, default: Date.now },
       },
     ],
+    completedQuests: [
+      {
+        questTitle: String,
+        completedAt: { type: Date, default: Date.now },
+        rewards: [
+          {
+            type: String,
+            value: String,
+          },
+        ],
+      },
+    ],
+    focusLogs: [
+      {
+        stat: String,
+        questTitle: String,
+        chosenAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );

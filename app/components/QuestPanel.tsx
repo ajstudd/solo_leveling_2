@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import * as Tabs from '@radix-ui/react-tabs';
 import { GiScrollUnfurled, GiTargetPrize, GiUpgrade, GiMagicSwirl } from "react-icons/gi";
 import { FaCheckCircle } from "react-icons/fa";
+import * as Dialog from '@radix-ui/react-dialog';
 
 const questIcons = [
     <GiScrollUnfurled key="scroll" className="text-xl text-indigo-300 mr-2" />,
@@ -70,6 +71,10 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
         }
         return [];
     });
+    const [showFocusModal, setShowFocusModal] = useState(false);
+    const [pendingQuest, setPendingQuest] = useState<GeminiQuest | null>(null);
+    const [focusStat, setFocusStat] = useState<string>("");
+    const statOptions = ["strength", "vitality", "agility", "intelligence", "perception"];
 
     function refreshQuests() {
         setRefreshKey((k) => k + 1);
@@ -92,11 +97,38 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
             .finally(() => setLoading(false));
     }, [stats, refreshKey]);
 
-    function markQuestComplete(quest: string) {
-        const entry = { quest, completedAt: new Date().toLocaleString() };
-        const updated = [...completed, entry];
-        setCompleted(updated);
-        localStorage.setItem('completedQuests', JSON.stringify(updated));
+    async function handleQuestComplete(quest: GeminiQuest) {
+        // Parse stat gains from rewards
+        const statGains = (quest.rewards || []).filter(r => r.type === "Stat").map(r => {
+            const match = r.value.match(/([A-Za-z]+) \+([0-9]+)/);
+            if (match) {
+                return { stat: match[1].toLowerCase(), amount: parseInt(match[2], 10) };
+            }
+            return null;
+        }).filter(Boolean);
+        // Call backend to update stats and completedQuests
+        const token = localStorage.getItem("token");
+        await fetch("/api/quests/complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ questTitle: quest.title, rewards: quest.rewards, statGains }),
+        });
+        setPendingQuest(quest);
+        setShowFocusModal(true);
+    }
+
+    async function handleFocusSubmit() {
+        if (!pendingQuest || !focusStat) return;
+        const token = localStorage.getItem("token");
+        await fetch("/api/focus", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ stat: focusStat, questTitle: pendingQuest.title }),
+        });
+        setShowFocusModal(false);
+        setFocusStat("");
+        setPendingQuest(null);
+        refreshQuests(); // Refresh UI with updated stats
     }
 
     function isQuestCompleted(quest: string) {
@@ -161,7 +193,7 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
                                                         {q.unlockCondition && <div className="text-yellow-300 text-xs">Unlock: {q.unlockCondition}</div>}
                                                         {!isQuestCompleted(q.title) && (
                                                             <button
-                                                                onClick={() => markQuestComplete(q.title)}
+                                                                onClick={() => handleQuestComplete(q)}
                                                                 className="mt-2 px-3 py-1 rounded bg-green-600 text-white font-bold hover:bg-green-500 focus:ring-2 focus:ring-green-400 transition text-xs self-end"
                                                             >
                                                                 Mark as Complete
@@ -239,6 +271,44 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
                     )}
                 </div>
             </Tabs.Root>
+            <Dialog.Root open={showFocusModal} onOpenChange={setShowFocusModal}>
+                <Dialog.Portal>
+                    <Dialog.Overlay className="fixed inset-0 bg-black/50 z-40" />
+                    <Dialog.Content className="fixed inset-0 flex items-center justify-center p-4 z-50">
+                        <div className="bg-[#232136] rounded-lg p-6 max-w-sm w-full shadow-lg">
+                            <Dialog.Title className="text-lg font-bold text-indigo-300 mb-4">Quest Complete!</Dialog.Title>
+                            <Dialog.Description className="text-indigo-100 text-sm mb-4">
+                                You have completed a quest and earned rewards. Select a stat to focus on for your next adventure:
+                            </Dialog.Description>
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                {statOptions.map(stat => (
+                                    <button
+                                        key={stat}
+                                        onClick={() => setFocusStat(stat)}
+                                        className={`px-3 py-1 rounded font-bold transition-all flex-1 ${focusStat === stat ? 'bg-indigo-700 text-white' : 'bg-indigo-600 text-indigo-100 hover:bg-indigo-500'}`}
+                                    >
+                                        {stat.charAt(0).toUpperCase() + stat.slice(1)}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="flex justify-end gap-2">
+                                <button
+                                    onClick={() => setShowFocusModal(false)}
+                                    className="px-3 py-1 rounded bg-zinc-700 text-zinc-200 font-semibold hover:bg-zinc-600 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleFocusSubmit}
+                                    className="px-3 py-1 rounded bg-green-600 text-white font-bold hover:bg-green-500 transition-all"
+                                >
+                                    Confirm Focus
+                                </button>
+                            </div>
+                        </div>
+                    </Dialog.Content>
+                </Dialog.Portal>
+            </Dialog.Root>
         </div>
     );
 }
