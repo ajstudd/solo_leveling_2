@@ -98,10 +98,10 @@ export default function Home() {
             ))}
           </div>
           <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl mb-8">
-            <LogList logs={logs} />
+            <QuestPanel stats={stats} />
           </div>
           <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl">
-            <QuestPanel stats={stats} />
+            <LogList logs={logs} />
           </div>
         </>
       )}

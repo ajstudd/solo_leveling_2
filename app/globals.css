@@ -24,3 +24,50 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Anime/Dark Theme Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 8px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #4f46e5 40%, #a5b4fc 100%);
+  border-radius: 8px;
+  border: 2px solid #232136;
+  box-shadow: 0 0 8px 2px #6366f1cc;
+  min-height: 40px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+  box-shadow: 0 0 12px 4px #818cf8cc;
+}
+::-webkit-scrollbar-track {
+  background: #18181b;
+  border-radius: 8px;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #6366f1 #18181b;
+}
+
+/* For scrollable divs with scrollbar-thin (Tailwind) */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+.scrollbar-thumb-indigo-700 {
+  scrollbar-color: #4338ca #232136;
+}
+
+/* Extra: Animate thumb on focus/active */
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
+  box-shadow: 0 0 16px 6px #a5b4fcc0;
+}
+
+/* Hide scrollbar corner for a cleaner look */
+::-webkit-scrollbar-corner {
+  background: #18181b;
+}

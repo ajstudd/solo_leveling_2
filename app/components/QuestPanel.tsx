@@ -132,7 +132,7 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
     }
 
     return (
-        <div className="flex-1 bg-[#18181b]/80 rounded-xl p-0 border-2 border-indigo-700/40 shadow-xl min-w-[320px] max-h-[600px] flex flex-col">
+        <div className="flex-1 bg-[#18181b]/80 rounded-xl p-0 border-2 border-indigo-700/40 shadow-xl min-w-[320px] max-h-[600px] h-[80vh] sm:h-auto flex flex-col">
             <Tabs.Root defaultValue="questlines" className="flex flex-col h-full">
                 <div className="sticky top-0 z-10 bg-[#18181b]/90 rounded-t-xl">
                     <div className="flex items-center justify-between px-6 pt-6 pb-2">
@@ -154,8 +154,8 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
                         <Tabs.Trigger value="completed" className="px-3 py-1 rounded-t bg-[#232136] text-green-300 font-semibold data-[state=active]:bg-green-700 data-[state=active]:text-white transition whitespace-nowrap">Completed</Tabs.Trigger>
                     </Tabs.List>
                 </div>
-                <div className="flex-1 overflow-y-auto p-6">
-                    <div className="p-6">
+                <div className="flex-1 overflow-y-auto p-6 max-h-[calc(100dvh-8rem)] sm:max-h-[600px]">
+                    <div className="h-full">
                         {loading ? (
                             <div className="text-indigo-400 animate-pulse">Loading quests...</div>
                         ) : error ? (
@@ -163,7 +163,7 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
                         ) : sections ? (
                             <>
                                 <Tabs.Content value="questlines">
-                                    <div className="space-y-6">
+                                    <div className="space-y-6 max-h-[400px] sm:max-h-[420px] overflow-y-auto pr-2">
                                         {sections.questlines.map((ql, i) => (
                                             <div key={i} className="bg-gradient-to-br from-[#232136] to-[#312e81] rounded-lg p-4 border border-indigo-700/40 shadow flex flex-col gap-2 relative">
                                                 <div className="flex items-center gap-2 mb-1">
