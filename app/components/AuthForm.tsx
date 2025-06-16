@@ -54,7 +54,7 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
                 onSubmit={handleSubmit}
             >
                 <h2 className="text-3xl font-extrabold mb-8 text-center text-indigo-200 drop-shadow-glow tracking-widest font-sans">
-                    {mode === "login" ? "SOLO LEVELING LOGIN" : "SOLO LEVELING REGISTER"}
+                    {mode === "login" ? "LOGIN" : "REGISTER"}
                 </h2>
                 <Form.Field name="email" className="mb-6">
                     <Form.Label className="block text-indigo-300 mb-1 font-semibold tracking-wide">Email</Form.Label>

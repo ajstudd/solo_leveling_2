@@ -79,7 +79,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#18181b] via-[#232136] to-[#312e81] text-indigo-100 flex flex-col items-center py-10 px-2">
-      <h1 className="text-4xl font-extrabold mb-8 tracking-widest text-center drop-shadow-glow">SOLO LEVELING DASHBOARD</h1>
+      <h1 className="text-4xl font-extrabold mb-8 tracking-widest text-center drop-shadow-glow">SOLO LEVELING</h1>
       {loading ? (
         <div className="text-xl animate-pulse">Loading...</div>
       ) : error ? (
