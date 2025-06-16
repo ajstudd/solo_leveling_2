@@ -1,12 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import StatCard from "./components/StatCard";
 import LogList from "./components/LogList";
 import QuestPanel from "./components/QuestPanel";
 import { useRouter } from "next/navigation";
 
-const statNames = [
+type StatKey = "strength" | "vitality" | "agility" | "intelligence" | "perception";
+
+const statNames: { key: StatKey; label: string }[] = [
   { key: "strength", label: "Strength" },
   { key: "vitality", label: "Vitality" },
   { key: "agility", label: "Agility" },
@@ -14,9 +15,25 @@ const statNames = [
   { key: "perception", label: "Perception" },
 ];
 
+interface Stats {
+  strength: number;
+  vitality: number;
+  agility: number;
+  intelligence: number;
+  perception: number;
+  [key: string]: number;
+}
+
+interface Log {
+  stat: string;
+  oldValue: number;
+  newValue: number;
+  changedAt: string;
+}
+
 export default function Home() {
-  const [stats, setStats] = useState<any>({});
-  const [logs, setLogs] = useState<any[]>([]);
+  const [stats, setStats] = useState<Stats>({} as Stats);
+  const [logs, setLogs] = useState<Log[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();

@@ -1,6 +1,38 @@
-import mongoose, { Schema, models, model, Model } from "mongoose";
+import { Schema, models, model, Model, Document } from "mongoose";
 
-const UserSchema = new Schema(
+export interface IUser extends Document {
+  email: string;
+  password: string;
+  stats: {
+    strength: number;
+    vitality: number;
+    agility: number;
+    intelligence: number;
+    perception: number;
+    [key: string]: number;
+  };
+  logs: Array<{
+    stat: string;
+    oldValue: number;
+    newValue: number;
+    changedAt: Date;
+  }>;
+  completedQuests: Array<{
+    questTitle: string;
+    completedAt: Date;
+    rewards: Array<{
+      type: string;
+      value: string;
+    }>;
+  }>;
+  focusLogs: Array<{
+    stat: string;
+    questTitle: string;
+    chosenAt: Date;
+  }>;
+}
+
+const UserSchema = new Schema<IUser>(
   {
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -42,4 +74,5 @@ const UserSchema = new Schema(
   { timestamps: true }
 );
 
-export default (models.User as Model<any>) || model("User", UserSchema);
+export default (models.User as Model<IUser>) ||
+  model<IUser>("User", UserSchema);

@@ -3,7 +3,64 @@
 const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent";
 
-function formatFocusLogs(focusLogs: any[] = []) {
+interface GeminiQuestReward {
+  type: string;
+  value: string;
+}
+
+interface GeminiQuest {
+  title: string;
+  subtitle: string;
+  description: string;
+  instructions: string;
+  rewards: GeminiQuestReward[];
+  priority: string;
+  category: string;
+  proof: string;
+  unlockCondition?: string | null;
+}
+
+interface GeminiQuestline {
+  stat: string;
+  title: string;
+  description: string;
+  quests: GeminiQuest[];
+}
+
+interface GeminiPassive {
+  title: string;
+  description: string;
+  unlockCondition: string;
+}
+
+interface GeminiTitle {
+  title: string;
+  description: string;
+  unlockCondition: string;
+}
+
+interface GeminiSections {
+  questlines: GeminiQuestline[];
+  passives: GeminiPassive[];
+  metrics: string[];
+  reportTemplate: string;
+  xpSystem: string;
+  titles: GeminiTitle[];
+}
+
+interface FocusLog {
+  stat: string;
+  questTitle: string;
+  chosenAt: string | Date;
+}
+
+interface CompletedQuest {
+  questTitle: string;
+  completedAt: string | Date;
+  rewards?: GeminiQuestReward[];
+}
+
+export function formatFocusLogs(focusLogs: FocusLog[] = []): string {
   if (!focusLogs.length) return "None yet.";
   return focusLogs
     .map(
@@ -15,7 +72,9 @@ function formatFocusLogs(focusLogs: any[] = []) {
     .join("\n");
 }
 
-function formatCompletedQuests(completedQuests: any[] = []) {
+export function formatCompletedQuests(
+  completedQuests: CompletedQuest[] = []
+): string {
   if (!completedQuests.length) return "None yet.";
   return completedQuests
     .map(
@@ -23,7 +82,7 @@ function formatCompletedQuests(completedQuests: any[] = []) {
         `- [${new Date(q.completedAt).toLocaleDateString()}] "${
           q.questTitle
         }" (Rewards: ${q.rewards
-          ?.map((r: any) => r.type + ": " + r.value)
+          ?.map((r) => r.type + ": " + r.value)
           .join(", ")})`
     )
     .join("\n");
@@ -140,9 +199,9 @@ All fields must be present. Use clear, concise text. No markdown, no special cha
 
 export async function getGeminiQuests(
   stats: Record<string, number>,
-  focusLogs: any[] = [],
-  completedQuests: any[] = []
-): Promise<any> {
+  focusLogs: FocusLog[] = [],
+  completedQuests: CompletedQuest[] = []
+): Promise<GeminiSections> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY not set in environment");
 
@@ -177,7 +236,7 @@ export async function getGeminiQuests(
   try {
     const parsed = JSON.parse(jsonMatch[0]);
     return parsed;
-  } catch (e) {
+  } catch {
     throw new Error("Gemini did not return valid JSON.\n" + text);
   }
 }

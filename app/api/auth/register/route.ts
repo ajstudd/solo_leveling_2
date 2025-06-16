@@ -19,6 +19,6 @@ export async function POST(req: NextRequest) {
   }
   const hashed = await bcrypt.hash(password, 10);
   const user = await User.create({ email, password: hashed });
-  const token = signJwt({ userId: user._id, email: user.email });
+  const token = signJwt({ userId: String(user._id), email: user.email });
   return NextResponse.json({ token });
 }

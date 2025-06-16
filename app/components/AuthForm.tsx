@@ -26,8 +26,8 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
             if (!res.ok) throw new Error(data.error || "Unknown error");
             localStorage.setItem("token", data.token);
             router.push("/");
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Unknown error");
         } finally {
             setLoading(false);
         }

@@ -29,10 +29,8 @@ export async function GET(req: NextRequest) {
       user.completedQuests
     );
     return NextResponse.json(parsed);
-  } catch (e: any) {
-    return NextResponse.json(
-      { error: e.message || "Gemini API error" },
-      { status: 500 }
-    );
+  } catch (e: unknown) {
+    const errorMsg = e instanceof Error ? e.message : "Gemini API error";
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }
