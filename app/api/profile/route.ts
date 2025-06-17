@@ -14,13 +14,19 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
   await connectToDB();
-  const user = await User.findById(payload.userId).select("profile badges");
+  const user = await User.findById(payload.userId).select(
+    "profile badges xp level passives titles"
+  );
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
   return NextResponse.json({
     profile: user.profile || {},
     badges: user.badges || [],
+    xp: user.xp || 0,
+    level: user.level || 1,
+    passives: user.passives || [],
+    titles: user.titles || [],
   });
 }
 

@@ -28,6 +28,49 @@ export async function POST(req: NextRequest) {
       }
     }
   }
+  // Process XP, passives, titles, badges from rewards
+  if (Array.isArray(rewards)) {
+    for (const reward of rewards) {
+      if (reward.type === "XP") {
+        user.xp = (user.xp || 0) + parseInt(reward.value, 10);
+        // Optional: Level up logic
+        // Example: 100 XP per level
+        while (user.xp >= (user.level || 1) * 100) {
+          user.xp -= (user.level || 1) * 100;
+          user.level = (user.level || 1) + 1;
+        }
+      } else if (reward.type === "Passive") {
+        if (!user.passives) user.passives = [];
+        if (!user.passives.some((p) => p.title === reward.value)) {
+          user.passives.push({
+            title: reward.value,
+            description: reward.value,
+            awardedAt: new Date(),
+          });
+        }
+      } else if (reward.type === "Title") {
+        if (!user.titles) user.titles = [];
+        if (!user.titles.some((t) => t.title === reward.value)) {
+          user.titles.push({
+            title: reward.value,
+            description: reward.value,
+            awardedAt: new Date(),
+          });
+        }
+      } else if (reward.type === "Badge") {
+        if (!user.badges) user.badges = [];
+        if (!user.badges.some((b) => b.title === reward.value)) {
+          user.badges.push({
+            title: reward.value,
+            description: reward.value,
+            icon: "🏅",
+            color: "#FFD700",
+            awardedAt: new Date(),
+          });
+        }
+      }
+    }
+  }
   // Add to completedQuests
   user.completedQuests.unshift({
     questTitle,

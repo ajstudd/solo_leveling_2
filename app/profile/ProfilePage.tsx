@@ -19,12 +19,29 @@ interface Profile {
     preferences?: string;
 }
 
+interface Passive {
+    title: string;
+    description: string;
+    unlockCondition?: string;
+    awardedAt?: string;
+}
+interface Title {
+    title: string;
+    description: string;
+    unlockCondition?: string;
+    awardedAt?: string;
+}
+
 export default function ProfilePage() {
     const [profile, setProfile] = useState<Profile>({});
     const [badges, setBadges] = useState<Badge[]>([]);
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
     const [form, setForm] = useState<Profile>({});
+    const [xp, setXp] = useState(0);
+    const [level, setLevel] = useState(1);
+    const [passives, setPassives] = useState<Passive[]>([]);
+    const [titles, setTitles] = useState<Title[]>([]);
 
     useEffect(() => {
         async function fetchProfile() {
@@ -37,6 +54,10 @@ export default function ProfilePage() {
             setProfile(data.profile || {});
             setForm(data.profile || {});
             setBadges(data.badges || []);
+            setXp(data.xp || 0);
+            setLevel(data.level || 1);
+            setPassives(data.passives || []);
+            setTitles(data.titles || []);
             setLoading(false);
         }
         fetchProfile();
@@ -92,6 +113,40 @@ export default function ProfilePage() {
                         <button onClick={() => setEditMode(true)} className="mt-2 px-4 py-2 bg-indigo-700 text-white rounded font-bold">Edit Profile</button>
                     </div>
                 )}
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <div className="flex-1 bg-[#232136]/80 rounded-xl p-4 border-2 border-indigo-700/40 shadow-xl flex flex-col items-center">
+                    <div className="text-lg font-bold text-indigo-300">Level {level}</div>
+                    <div className="text-indigo-200">XP: {xp}</div>
+                </div>
+                <div className="flex-1 bg-[#232136]/80 rounded-xl p-4 border-2 border-indigo-700/40 shadow-xl">
+                    <div className="text-lg font-bold text-indigo-300 mb-2">Passives</div>
+                    {passives.length === 0 ? <div className="text-zinc-400">No passives yet.</div> : (
+                        <ul className="space-y-2">
+                            {passives.map((p, i) => (
+                                <li key={i} className="bg-[#18181b]/80 rounded p-2 border border-purple-700/40 shadow">
+                                    <div className="font-bold text-purple-300">{p.title}</div>
+                                    <div className="text-indigo-100 text-xs">{p.description}</div>
+                                    {p.awardedAt && <div className="text-xs text-zinc-400">Awarded: {new Date(p.awardedAt).toLocaleDateString()}</div>}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+                <div className="flex-1 bg-[#232136]/80 rounded-xl p-4 border-2 border-indigo-700/40 shadow-xl">
+                    <div className="text-lg font-bold text-indigo-300 mb-2">Titles</div>
+                    {titles.length === 0 ? <div className="text-zinc-400">No titles yet.</div> : (
+                        <ul className="space-y-2">
+                            {titles.map((t, i) => (
+                                <li key={i} className="bg-[#18181b]/80 rounded p-2 border border-indigo-900/40 shadow">
+                                    <div className="font-bold text-indigo-300">{t.title}</div>
+                                    <div className="text-indigo-100 text-xs">{t.description}</div>
+                                    {t.awardedAt && <div className="text-xs text-zinc-400">Awarded: {new Date(t.awardedAt).toLocaleDateString()}</div>}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             </div>
             <div>
                 <h2 className="text-xl font-bold text-indigo-300 mb-2">Badges</h2>

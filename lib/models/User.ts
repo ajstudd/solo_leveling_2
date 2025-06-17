@@ -66,6 +66,20 @@ export interface IUser extends Document {
     achievedAt?: Date;
     criteria: string;
   }>;
+  xp?: number;
+  level?: number;
+  passives?: Array<{
+    title: string;
+    description: string;
+    unlockCondition?: string;
+    awardedAt?: Date;
+  }>;
+  titles?: Array<{
+    title: string;
+    description: string;
+    unlockCondition?: string;
+    awardedAt?: Date;
+  }>;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -146,6 +160,24 @@ const UserSchema = new Schema<IUser>(
         achieved: Boolean,
         achievedAt: Date,
         criteria: String,
+      },
+    ],
+    xp: { type: Number, default: 0 },
+    level: { type: Number, default: 1 },
+    passives: [
+      {
+        title: String,
+        description: String,
+        unlockCondition: String,
+        awardedAt: { type: Date, default: Date.now },
+      },
+    ],
+    titles: [
+      {
+        title: String,
+        description: String,
+        unlockCondition: String,
+        awardedAt: { type: Date, default: Date.now },
       },
     ],
   },
