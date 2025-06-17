@@ -30,6 +30,42 @@ export interface IUser extends Document {
     questTitle: string;
     chosenAt: Date;
   }>;
+  // Profile info for Gemini AI
+  profile?: {
+    name?: string;
+    age?: number;
+    gender?: string;
+    bio?: string;
+    goals?: string;
+    preferences?: string;
+    [key: string]: any;
+  };
+  // Badges earned by the user
+  badges?: Array<{
+    title: string;
+    description: string;
+    icon: string;
+    color: string;
+    awardedAt: Date;
+  }>;
+  // Cached quests (updated daily)
+  questCache?: {
+    quests: any;
+    updatedAt: Date;
+  };
+  // Internal quest logs for AI
+  questLogs?: Array<{
+    date: Date;
+    skippedSections: string[];
+    progress: Record<string, number>;
+  }>;
+  // Milestones for badge awarding
+  milestones?: Array<{
+    badge: string;
+    achieved: boolean;
+    achievedAt?: Date;
+    criteria: string;
+  }>;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -68,6 +104,48 @@ const UserSchema = new Schema<IUser>(
         stat: String,
         questTitle: String,
         chosenAt: { type: Date, default: Date.now },
+      },
+    ],
+    // Profile info for Gemini AI
+    profile: {
+      name: String,
+      age: Number,
+      gender: String,
+      bio: String,
+      goals: String,
+      preferences: String,
+      // Add more fields as needed
+    },
+    // Badges earned by the user
+    badges: [
+      {
+        title: String,
+        description: String,
+        icon: String,
+        color: String,
+        awardedAt: { type: Date, default: Date.now },
+      },
+    ],
+    // Cached quests (updated daily)
+    questCache: {
+      quests: Schema.Types.Mixed,
+      updatedAt: Date,
+    },
+    // Internal quest logs for AI
+    questLogs: [
+      {
+        date: { type: Date, default: Date.now },
+        skippedSections: [String],
+        progress: Schema.Types.Mixed,
+      },
+    ],
+    // Milestones for badge awarding
+    milestones: [
+      {
+        badge: String,
+        achieved: Boolean,
+        achievedAt: Date,
+        criteria: String,
       },
     ],
   },
