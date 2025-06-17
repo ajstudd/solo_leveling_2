@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface Badge {
     title: string;
@@ -60,7 +61,14 @@ export default function ProfilePage() {
 
     return (
         <div className="max-w-2xl mx-auto p-6 bg-[#18181b]/80 rounded-xl border-2 border-indigo-700/40 shadow-xl mt-8">
-            <h1 className="text-2xl font-bold text-indigo-300 mb-4">My Profile</h1>
+            <div className="flex items-center justify-between mb-4">
+                <h1 className="text-2xl font-bold text-indigo-300">My Profile</h1>
+                <Link href="/" legacyBehavior>
+                    <a className="rounded-full bg-indigo-700 text-white shadow-lg hover:bg-indigo-800 transition border-2 border-indigo-400 w-10 h-10 flex items-center justify-center text-xl" title="Back to Home">
+                        <span role="img" aria-label="home">🏠</span>
+                    </a>
+                </Link>
+            </div>
             <div className="mb-6">
                 {editMode ? (
                     <div className="space-y-3">
@@ -94,11 +102,24 @@ export default function ProfilePage() {
                 ) : (
                     <div className="flex flex-wrap gap-4">
                         {badges.map((badge, i) => (
-                            <div key={i} className="flex flex-col items-center p-3 rounded-lg shadow-lg" style={{ background: badge.color, minWidth: 120 }}>
-                                <div className="text-3xl mb-1">{badge.icon}</div>
-                                <div className="font-bold text-white text-sm">{badge.title}</div>
-                                <div className="text-xs text-white/80 mb-1">{badge.description}</div>
-                                <div className="text-xs text-white/60">{new Date(badge.awardedAt).toLocaleDateString()}</div>
+                            <div
+                                key={i}
+                                className="flex flex-col items-center justify-center p-3 shadow-xl"
+                                style={{
+                                    background: 'rgba(24,24,27,0.85)',
+                                    borderRadius: '50%',
+                                    minWidth: 120,
+                                    minHeight: 120,
+                                    border: `4px solid ${badge.color}`,
+                                    boxShadow: `0 0 16px 4px ${badge.color}, 0 2px 8px #0008`,
+                                    position: 'relative',
+                                    transition: 'transform 0.2s',
+                                }}
+                            >
+                                <div className="text-4xl mb-1" style={{ textShadow: `0 0 8px ${badge.color}` }}>{badge.icon}</div>
+                                <div className="font-bold text-white text-sm text-center drop-shadow" style={{ textShadow: `0 0 6px ${badge.color}` }}>{badge.title}</div>
+                                <div className="text-xs text-white/80 mb-1 text-center">{badge.description}</div>
+                                <div className="text-xs text-white/60 absolute bottom-2 left-0 right-0 text-center">{new Date(badge.awardedAt).toLocaleDateString()}</div>
                             </div>
                         ))}
                     </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import * as Tooltip from "@radix-ui/react-tooltip";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +30,18 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Tooltip.Provider delayDuration={200} skipDelayDuration={0}>
+          <header className="w-full flex items-center justify-between p-4 bg-transparent">
+            <h1 className="text-2xl font-extrabold tracking-widest text-indigo-400 drop-shadow-lg select-none">
+              SOLO LEVELING
+            </h1>
+            <Link href="/profile">
+              <button className="rounded-full bg-indigo-700 text-white shadow-lg hover:bg-indigo-800 transition border-2 border-indigo-400 w-12 h-12 flex items-center justify-center text-2xl">
+                <span role="img" aria-label="profile">
+                  👤
+                </span>
+              </button>
+            </Link>
+          </header>
           {children}
         </Tooltip.Provider>
       </body>
