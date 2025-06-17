@@ -1,4 +1,4 @@
-import { Schema, models, model, Model, Document } from "mongoose";
+import { Schema, model, Document } from "mongoose";
 import { GeminiSections } from "../gemini";
 
 export interface UserProfile {
@@ -110,8 +110,8 @@ const UserSchema = new Schema<IUser>(
         completedAt: { type: Date, default: Date.now },
         rewards: [
           {
-            type: String,
-            value: String,
+            type: { type: String },
+            value: { type: String },
           },
         ],
       },
@@ -187,5 +187,12 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-export default (models.User as Model<IUser>) ||
-  model<IUser>("User", UserSchema);
+// Force recompilation of the model in dev/hot-reload environments
+// This ensures we always use the latest schema definition
+import mongoose from "mongoose";
+if (mongoose.models.User) {
+  delete mongoose.models.User;
+}
+
+const User = model<IUser>("User", UserSchema);
+export default User;

@@ -44,15 +44,17 @@ interface GeminiSections {
 }
 
 interface CompletedQuestItem {
-    quest: string;
+    questTitle: string;
     completedAt: string;
+    rewards: { type: string; value: string }[];
 }
 
 interface QuestPanelProps {
     stats: Record<string, number>;
+    onUserDataChange?: () => void;
 }
 
-export default function QuestPanel({ stats }: QuestPanelProps) {
+export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps) {
     const [sections, setSections] = useState<GeminiSections | null>(null);
     const [loading, setLoading] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -95,20 +97,28 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
 
     async function handleQuestComplete(quest: GeminiQuest) {
         // Parse stat gains from rewards
-        const statGains = (quest.rewards || []).filter(r => r.type === "Stat").map(r => {
-            const match = r.value.match(/([A-Za-z]+) \+([0-9]+)/);
-            if (match) {
-                return { stat: match[1].toLowerCase(), amount: parseInt(match[2], 10) };
-            }
-            return null;
-        }).filter(Boolean) as { stat: string; amount: number }[];
+        const statGains = (quest.rewards || [])
+            .filter(r => r.type === "Stat")
+            .map(r => {
+                const match = r.value.match(/([A-Za-z]+)\s*\+([0-9]+)/); // allow optional space
+                if (match) {
+                    return { stat: match[1].toLowerCase(), amount: parseInt(match[2], 10) };
+                }
+                return null;
+            })
+            .filter(Boolean) as { stat: string; amount: number }[];
         // Call backend to update stats and completedQuests
         const token = localStorage.getItem("token");
-        await fetch("/api/quests/complete", {
+        const res = await fetch("/api/quests/complete", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ questTitle: quest.title, rewards: quest.rewards, statGains }),
         });
+        if (res.ok) {
+            const data = await res.json();
+            setCompleted(data.completedQuests);
+            if (onUserDataChange) onUserDataChange(); // Trigger parent to refresh stats/logs
+        }
         setPendingQuest(quest);
         setShowFocusModal(true);
     }
@@ -124,11 +134,10 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
         setShowFocusModal(false);
         setFocusStat("");
         setPendingQuest(null);
-        refreshQuests(); // Refresh UI with updated stats
-    }
-
-    function isQuestCompleted(quest: string): boolean {
-        return completed.some((q: CompletedQuestItem) => q.quest === quest);
+        refreshQuests(); // Refresh UI with updated quests
+        if (onUserDataChange) onUserDataChange(); // Also refresh stats/logs
+    } function isQuestCompleted(quest: string): boolean {
+        return completed.some((q: CompletedQuestItem) => q.questTitle === quest);
     }
 
     return (
@@ -170,14 +179,13 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
                                                     <span className="inline-block px-2 py-0.5 rounded bg-indigo-700 text-xs font-bold text-white uppercase tracking-wider">{ql.stat}</span>
                                                     <span className="text-indigo-300 font-bold text-base">{ql.title}</span>
                                                 </div>
-                                                <div className="text-indigo-100 text-sm mb-2">{ql.description}</div>
-                                                <div className="space-y-3">
-                                                    {ql.quests.map((q, j) => (
+                                                <div className="text-indigo-100 text-sm mb-2">{ql.description}</div>                                                <div className="space-y-3">
+                                                    {/* Filter out completed quests */}
+                                                    {ql.quests.filter(q => !isQuestCompleted(q.title)).map((q, j) => (
                                                         <div key={j} className="bg-[#232136] rounded p-3 border border-indigo-800/40 shadow flex flex-col gap-1 relative">
                                                             <div className="flex items-center gap-2 mb-1">
                                                                 <span className="inline-block px-2 py-0.5 rounded bg-indigo-800 text-xs font-bold text-white uppercase tracking-wider">{q.category}</span>
                                                                 <span className="text-indigo-200 font-bold text-sm">{q.title}</span>
-                                                                {isQuestCompleted(q.title) && <FaCheckCircle className="text-green-400 ml-2" title="Completed" />}
                                                                 {q.priority === 'High' && <span className="ml-2 px-2 py-0.5 rounded bg-pink-700 text-xs font-bold text-white">High</span>}
                                                             </div>
                                                             <div className="text-indigo-100 text-xs italic mb-1">{q.subtitle}</div>
@@ -190,14 +198,12 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
                                                             </div>
                                                             <div className="text-indigo-300 text-xs">Proof: {q.proof}</div>
                                                             {q.unlockCondition && <div className="text-yellow-300 text-xs">Unlock: {q.unlockCondition}</div>}
-                                                            {!isQuestCompleted(q.title) && (
-                                                                <button
-                                                                    onClick={() => handleQuestComplete(q)}
-                                                                    className="mt-2 px-3 py-1 rounded bg-green-600 text-white font-bold hover:bg-green-500 focus:ring-2 focus:ring-green-400 transition text-xs self-end"
-                                                                >
-                                                                    Mark as Complete
-                                                                </button>
-                                                            )}
+                                                            <button
+                                                                onClick={() => handleQuestComplete(q)}
+                                                                className="mt-2 px-3 py-1 rounded bg-green-600 text-white font-bold hover:bg-green-500 focus:ring-2 focus:ring-green-400 transition text-xs self-end"
+                                                            >
+                                                                Mark as Complete
+                                                            </button>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -252,14 +258,18 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
                                         {completed.length === 0 ? (
                                             <div className="text-zinc-400">No completed quests yet.</div>
                                         ) : (
-                                            completed.map((q, i) => (
-                                                <div key={i} className="bg-gradient-to-br from-green-900 to-green-700 rounded-lg p-4 border border-green-700/40 shadow flex flex-col gap-2">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <FaCheckCircle className="text-green-400" />
-                                                        <span className="text-green-100 font-bold text-sm">{q.quest}</span>
-                                                    </div>
-                                                    <div className="text-green-200 text-xs">Completed at: {q.completedAt}</div>
+                                            completed.map((q, i) => (<div key={i} className="bg-gradient-to-br from-green-900 to-green-700 rounded-lg p-4 border border-green-700/40 shadow flex flex-col gap-2">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <FaCheckCircle className="text-green-400" />
+                                                    <span className="text-green-100 font-bold text-sm">{q.questTitle}</span>
                                                 </div>
+                                                <div className="text-green-200 text-xs">Completed at: {new Date(q.completedAt).toLocaleString()}</div>
+                                                <div className="flex flex-wrap gap-2 mt-2">
+                                                    {q.rewards && q.rewards.map((r, idx) => (
+                                                        <span key={idx} className="inline-block px-2 py-0.5 rounded bg-green-500/50 text-xs font-bold text-white">{r.type}: {r.value}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
                                             ))
                                         )}
                                     </div>

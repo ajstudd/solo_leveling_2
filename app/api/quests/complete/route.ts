@@ -75,8 +75,18 @@ export async function POST(req: NextRequest) {
   user.completedQuests.unshift({
     questTitle,
     completedAt: new Date(),
-    rewards,
+    rewards: Array.isArray(rewards) ? rewards : [],
   });
+
   await user.save();
-  return NextResponse.json({ success: true, stats: user.stats });
+  return NextResponse.json({
+    success: true,
+    stats: user.stats,
+    xp: user.xp,
+    level: user.level,
+    completedQuests: user.completedQuests,
+    passives: user.passives,
+    titles: user.titles,
+    badges: user.badges,
+  });
 }

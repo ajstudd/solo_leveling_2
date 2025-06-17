@@ -60,6 +60,18 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, [router]);
 
+  function handleUserDataChange() {
+    const token = localStorage.getItem("token");
+    fetch("/api/stats", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setStats(data.stats);
+        setLogs(data.logs);
+      });
+  }
+
   function handleStatUpdate(stat: string, value: number) {
     const token = localStorage.getItem("token");
     fetch("/api/stats", {
@@ -98,7 +110,7 @@ export default function Home() {
             ))}
           </div>
           <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl mb-8">
-            <QuestPanel stats={stats} />
+            <QuestPanel stats={stats} onUserDataChange={handleUserDataChange} />
           </div>
           <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl">
             <LogList logs={logs} />
