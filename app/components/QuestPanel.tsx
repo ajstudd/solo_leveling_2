@@ -134,7 +134,7 @@ export default function QuestPanel({ stats }: QuestPanelProps) {
     return (
         <div className="flex-1 bg-[#18181b]/80 rounded-xl p-0 border-2 border-indigo-700/40 shadow-xl min-w-[320px] max-h-[600px] h-[80vh] sm:h-auto flex flex-col">
             <Tabs.Root defaultValue="questlines" className="flex flex-col h-full">
-                <div className="sticky top-0 z-10 bg-[#18181b]/90 rounded-t-xl">
+                <div className="top-0 z-10 bg-[#18181b]/90 rounded-t-xl">
                     <div className="flex items-center justify-between px-6 pt-6 pb-2">
                         <div className="text-lg font-bold text-indigo-300 tracking-wide">RPG Quest System</div>
                         <button
