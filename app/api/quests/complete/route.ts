@@ -3,7 +3,7 @@ import { verifyJwt } from "@/lib/auth";
 import { connectToDB } from "@/lib/mongodb";
 import User from "@/lib/models/User";
 
-// Body: { questTitle, rewards: [{type, value}], statGains: [{stat, amount}] }
+// Body: { questTitle, questDescription, rewards: [{type, value}], statGains: [{stat, amount}] }
 export async function POST(req: NextRequest) {
   const auth = req.headers.get("authorization");
   if (!auth || !auth.startsWith("Bearer ")) {
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
   await connectToDB();
-  const { questTitle, rewards, statGains } = await req.json();
+  const { questTitle, questDescription, rewards, statGains } = await req.json();
   const user = await User.findById(payload.userId);
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -24,7 +24,15 @@ export async function POST(req: NextRequest) {
   if (Array.isArray(statGains)) {
     for (const gain of statGains) {
       if (user.stats[gain.stat] !== undefined) {
+        const oldValue = user.stats[gain.stat];
         user.stats[gain.stat] += gain.amount;
+        const newValue = user.stats[gain.stat];
+        user.logs.unshift({
+          stat: gain.stat,
+          oldValue,
+          newValue,
+          changedAt: new Date(),
+        });
       }
     }
   }
@@ -71,9 +79,10 @@ export async function POST(req: NextRequest) {
       }
     }
   }
-  // Add to completedQuests
+  // Add to completedQuests (now with description)
   user.completedQuests.unshift({
     questTitle,
+    questDescription: questDescription || "",
     completedAt: new Date(),
     rewards: Array.isArray(rewards) ? rewards : [],
   });

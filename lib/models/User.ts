@@ -30,6 +30,7 @@ export interface IUser extends Document {
   }>;
   completedQuests: Array<{
     questTitle: string;
+    questDescription: string; // Add description field
     completedAt: Date;
     rewards: Array<{
       type: string;
@@ -107,6 +108,7 @@ const UserSchema = new Schema<IUser>(
     completedQuests: [
       {
         questTitle: String,
+        questDescription: String, // Add description field
         completedAt: { type: Date, default: Date.now },
         rewards: [
           {

@@ -45,6 +45,7 @@ interface GeminiSections {
 
 interface CompletedQuestItem {
     questTitle: string;
+    questDescription?: string;
     completedAt: string;
     rewards: { type: string; value: string }[];
 }
@@ -258,18 +259,22 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
                                         {completed.length === 0 ? (
                                             <div className="text-zinc-400">No completed quests yet.</div>
                                         ) : (
-                                            completed.map((q, i) => (<div key={i} className="bg-gradient-to-br from-green-900 to-green-700 rounded-lg p-4 border border-green-700/40 shadow flex flex-col gap-2">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <FaCheckCircle className="text-green-400" />
-                                                    <span className="text-green-100 font-bold text-sm">{q.questTitle}</span>
+                                            completed.map((q, i) => (
+                                                <div key={i} className="bg-gradient-to-br from-green-900 to-green-700 rounded-lg p-4 border border-green-700/40 shadow flex flex-col gap-2">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <FaCheckCircle className="text-green-400" />
+                                                        <span className="text-green-100 font-bold text-sm">{q.questTitle}</span>
+                                                    </div>
+                                                    {q.questDescription && (
+                                                        <div className="text-green-200 text-xs italic mb-1">{q.questDescription}</div>
+                                                    )}
+                                                    <div className="text-green-200 text-xs">Completed at: {new Date(q.completedAt).toLocaleString()}</div>
+                                                    <div className="flex flex-wrap gap-2 mt-2">
+                                                        {q.rewards && q.rewards.map((r, idx) => (
+                                                            <span key={idx} className="inline-block px-2 py-0.5 rounded bg-green-500/50 text-xs font-bold text-white">{r.type}: {r.value}</span>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                                <div className="text-green-200 text-xs">Completed at: {new Date(q.completedAt).toLocaleString()}</div>
-                                                <div className="flex flex-wrap gap-2 mt-2">
-                                                    {q.rewards && q.rewards.map((r, idx) => (
-                                                        <span key={idx} className="inline-block px-2 py-0.5 rounded bg-green-500/50 text-xs font-bold text-white">{r.type}: {r.value}</span>
-                                                    ))}
-                                                </div>
-                                            </div>
                                             ))
                                         )}
                                     </div>

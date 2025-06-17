@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
   const completedQuests = user.completedQuests || [];
   const formattedQuests = completedQuests.map((quest) => ({
     questTitle: quest.questTitle,
+    questDescription: quest.questDescription || "",
     completedAt: quest.completedAt,
     rewards: quest.rewards || [],
   }));
