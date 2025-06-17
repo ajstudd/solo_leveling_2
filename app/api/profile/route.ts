@@ -47,6 +47,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
   user.profile = { ...user.profile, ...body };
+  // Clear questCache to force quest regeneration on next fetch
+  user.questCache = undefined;
   await user.save();
   return NextResponse.json({ success: true });
 }
