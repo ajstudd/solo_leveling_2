@@ -60,13 +60,11 @@ export default function ProfilePage() {
     if (loading) return <div className="text-indigo-400">Loading profile...</div>;
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-[#18181b]/80 rounded-xl border-2 border-indigo-700/40 shadow-xl mt-8">
+        <div className="max-w-2xl mx-auto p-6 bg-gradient-to-br from-[#18181b] via-[#232136] to-[#312e81] rounded-xl border-2 border-indigo-700/40 shadow-xl mt-8">
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold text-indigo-300">My Profile</h1>
-                <Link href="/" legacyBehavior>
-                    <a className="rounded-full bg-indigo-700 text-white shadow-lg hover:bg-indigo-800 transition border-2 border-indigo-400 w-10 h-10 flex items-center justify-center text-xl" title="Back to Home">
-                        <span role="img" aria-label="home">🏠</span>
-                    </a>
+                <Link href="/" className="rounded-full bg-indigo-700 text-white shadow-lg hover:bg-indigo-800 transition border-2 border-indigo-400 w-10 h-10 flex items-center justify-center text-xl" title="Back to Home">
+                    <span role="img" aria-label="back">🏠</span>
                 </Link>
             </div>
             <div className="mb-6">

@@ -30,7 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Tooltip.Provider delayDuration={200} skipDelayDuration={0}>
-          <header className="w-full flex items-center justify-between p-4 bg-transparent">
+          <header className="w-full flex items-center justify-between p-4 bg-gradient-to-br from-[#18181b] via-[#232136] to-[#312e81]">
             <h1 className="text-2xl font-extrabold tracking-widest text-indigo-400 drop-shadow-lg select-none">
               SOLO LEVELING
             </h1>
