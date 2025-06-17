@@ -97,15 +97,7 @@ You are a game designer, personal development coach, and psychological strategis
 
 Here’s the user's full personal profile and traits that must inform quest design:
 
-- 23-year-old male BTech Computer Science student.
-- Height: 5’6”, Weight: 51kg (underweight). Slightly underconfident in physical appearance due to minor pimples. Skin is fair.
-- Has solved 100 LeetCode problems independently, and 85 with help from a teacher.
-- Struggles somewhat with advanced math (e.g., differentiation, integration).
-- Used to get frustrated by small discomforts but is improving now.
-- Has strong empathy and the ability to "read" people quickly (within 2–3 conversations).
-- Has a fragile ego, and is underconfident around women but very self-aware.
-- Goals are huge: wants to become successful for family, especially to support mother’s skin condition and sister’s stomach health.
-- Wants to be exceptional — smart, disciplined, emotionally strong, charismatic, respected.
+{profile}
 
 ---
 
@@ -116,8 +108,6 @@ Here’s the user's full personal profile and traits that must inform quest desi
 - Vitality: {vitality}
 - Intelligence: {intelligence}
 - Perception: {perception}
-
-User wants to improve both Strength and Intelligence first — is actively working on them.
 
 ---
 
@@ -134,7 +124,7 @@ User wants to improve both Strength and Intelligence first — is actively worki
 ### OBJECTIVE:
 
 Design an RPG-style quest system that will:
-1. Give the user weekly quests and challenges to improve Strength and Intelligence (trackable and measurable).
+1. Give the user weekly quests and challenges to improve their stats (trackable and measurable).
 2. Include sub-quests under each stat.
 3. Assign XP, Stat Gains, and Passive Unlocks for each quest when proof is submitted.
 4. Gradually unlock new traits like Discipline, Charisma, Emotional Mastery, etc.
@@ -200,13 +190,20 @@ All fields must be present. Use clear, concise text. No markdown, no special cha
 export async function getGeminiQuests(
   stats: Record<string, number>,
   focusLogs: FocusLog[] = [],
-  completedQuests: CompletedQuest[] = []
+  completedQuests: CompletedQuest[] = [],
+  profile: Record<string, any> = {}
 ): Promise<GeminiSections> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY not set in environment");
 
-  // Fill in the stats and logs in the context
-  const prompt = USER_CONTEXT.replace("{strength}", String(stats.strength ?? 0))
+  // Format profile as a readable string
+  const profileString = Object.entries(profile)
+    .map(([key, value]) => `- ${key}: ${value}`)
+    .join("\n");
+
+  // Fill in the stats, logs, and profile in the context
+  const prompt = USER_CONTEXT.replace("{profile}", profileString)
+    .replace("{strength}", String(stats.strength ?? 0))
     .replace("{agility}", String(stats.agility ?? 0))
     .replace("{vitality}", String(stats.vitality ?? 0))
     .replace("{intelligence}", String(stats.intelligence ?? 0))

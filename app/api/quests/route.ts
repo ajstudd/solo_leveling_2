@@ -15,9 +15,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
   await connectToDB();
-  // Fetch stats, focusLogs, completedQuests, questCache
+  // Fetch stats, focusLogs, completedQuests, questCache, profile
   const user = await User.findById(payload.userId).select(
-    "stats focusLogs completedQuests questCache"
+    "stats focusLogs completedQuests questCache profile"
   );
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -37,7 +37,8 @@ export async function GET(req: NextRequest) {
     const parsed = await getGeminiQuests(
       user.stats,
       user.focusLogs,
-      user.completedQuests
+      user.completedQuests,
+      user.profile || {}
     );
     // Cache the quests in db
     user.questCache = {
