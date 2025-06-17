@@ -39,7 +39,7 @@ interface GeminiTitle {
   unlockCondition: string;
 }
 
-interface GeminiSections {
+export interface GeminiSections {
   questlines: GeminiQuestline[];
   passives: GeminiPassive[];
   metrics: string[];
@@ -187,11 +187,22 @@ Respond ONLY with a single JSON object with this structure (no markdown, no expl
 All fields must be present. Use clear, concise text. No markdown, no special characters, no explanations. Only valid JSON.
 `;
 
+// Add UserProfile type for profile
+export interface UserProfile {
+  name?: string;
+  age?: number;
+  gender?: string;
+  bio?: string;
+  goals?: string;
+  preferences?: string;
+  [key: string]: unknown;
+}
+
 export async function getGeminiQuests(
   stats: Record<string, number>,
   focusLogs: FocusLog[] = [],
   completedQuests: CompletedQuest[] = [],
-  profile: Record<string, any> = {}
+  profile: UserProfile = {}
 ): Promise<GeminiSections> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY not set in environment");

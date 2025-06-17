@@ -1,4 +1,15 @@
 import { Schema, models, model, Model, Document } from "mongoose";
+import { GeminiSections } from "../gemini";
+
+export interface UserProfile {
+  name?: string;
+  age?: number;
+  gender?: string;
+  bio?: string;
+  goals?: string;
+  preferences?: string;
+  [key: string]: unknown;
+}
 
 export interface IUser extends Document {
   email: string;
@@ -31,15 +42,7 @@ export interface IUser extends Document {
     chosenAt: Date;
   }>;
   // Profile info for Gemini AI
-  profile?: {
-    name?: string;
-    age?: number;
-    gender?: string;
-    bio?: string;
-    goals?: string;
-    preferences?: string;
-    [key: string]: any;
-  };
+  profile?: UserProfile;
   // Badges earned by the user
   badges?: Array<{
     title: string;
@@ -50,7 +53,7 @@ export interface IUser extends Document {
   }>;
   // Cached quests (updated daily)
   questCache?: {
-    quests: any;
+    quests: GeminiSections | unknown;
     updatedAt: Date;
   };
   // Internal quest logs for AI
