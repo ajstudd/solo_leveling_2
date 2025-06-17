@@ -141,7 +141,10 @@ Design an RPG-style quest system that will:
   - Practical and real-world applicable
   - Balanced between mental, emotional, and physical effort
   - Scalable: They should evolve and branch as the user levels up
-- Be strict in score increases. Require proof or behavior consistency for level-ups.
+  - CRITICAL: All quests must be doable within a 24-hour timeframe - ensure each quest can be completed in a single day
+  - Time-appropriate: Ensure the total daily workload is reasonable (2-6 hours max per day)
+  - Consider user's current stats and lifestyle when designing quests - lower level stats should have simpler quests
+- Be strict in score increases. Do not give high points with easy quests.
 - Help the user track all the progress using a report format template that can be reused weekly.
 - Occasionally provide special events, boss quests, or elite missions based on life challenges the user faces.
 
