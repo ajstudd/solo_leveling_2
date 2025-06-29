@@ -218,7 +218,7 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
                                     </div>
                                 </Tabs.Content>
                                 <Tabs.Content value="passives">
-                                    <div className="space-y-2 text-indigo-100">
+                                    <div className="space-y-6 max-h-[400px] sm:max-h-[420px] overflow-y-auto pr-2">
                                         {sections.passives.map((p, i) => (
                                             <div key={i} className="flex flex-col gap-1 bg-[#232136] rounded p-3 border border-purple-700/40 shadow">
                                                 <span className="inline-block px-2 py-0.5 rounded bg-purple-700 text-xs font-bold text-white">{p.title}</span>
@@ -229,7 +229,7 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
                                     </div>
                                 </Tabs.Content>
                                 <Tabs.Content value="metrics">
-                                    <div className="space-y-2 text-indigo-100">
+                                    <div className="space-y-6 max-h-[400px] sm:max-h-[420px] overflow-y-auto pr-2">
                                         {sections.metrics.map((m, i) => (
                                             <div key={i} className="flex items-center gap-2">
                                                 <span className="inline-block px-2 py-0.5 rounded bg-blue-700 text-xs font-bold text-white">Metric</span>
@@ -239,17 +239,17 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
                                     </div>
                                 </Tabs.Content>
                                 <Tabs.Content value="report">
-                                    <div className="space-y-2 text-indigo-100 whitespace-pre-line">
+                                    <div className="space-y-6 max-h-[400px] sm:max-h-[420px] overflow-y-auto pr-2">
                                         {sections.reportTemplate}
                                     </div>
                                 </Tabs.Content>
                                 <Tabs.Content value="xp">
-                                    <div className="space-y-2 text-indigo-100 whitespace-pre-line">
+                                    <div className="space-y-6 max-h-[400px] sm:max-h-[420px] overflow-y-auto pr-2">
                                         {sections.xpSystem}
                                     </div>
                                 </Tabs.Content>
                                 <Tabs.Content value="titles">
-                                    <div className="space-y-2 text-indigo-100">
+                                    <div className="space-y-6 max-h-[400px] sm:max-h-[420px] overflow-y-auto pr-2">
                                         {sections.titles.map((t, i) => (
                                             <div key={i} className="flex flex-col gap-1 bg-[#232136] rounded p-3 border border-indigo-900/40 shadow">
                                                 <span className="inline-block px-2 py-0.5 rounded bg-indigo-900 text-xs font-bold text-white">{t.title}</span>
@@ -260,7 +260,7 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
                                     </div>
                                 </Tabs.Content>
                                 <Tabs.Content value="completed">
-                                    <div className="space-y-4">
+                                    <div className="space-y-6 max-h-[400px] sm:max-h-[420px] overflow-y-auto pr-2">
                                         {completed.length === 0 ? (
                                             <div className="text-zinc-400">No completed quests yet.</div>
                                         ) : (
