@@ -89,20 +89,43 @@ export default function Home() {
       })
       .catch((err) => {
         setError(err.message);
-        if (err.message.toLowerCase().includes("unauthorized")) router.push("/login");
+        if (err.message.toLowerCase().includes("unauthorized") || err.message.toLowerCase().includes("invalid token")) {
+          localStorage.removeItem("token");
+          router.push("/login");
+        }
       })
       .finally(() => setLoading(false));
   }, [router]);
 
   function handleUserDataChange() {
     const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    
     fetch("/api/stats", {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          router.push("/login");
+          return null;
+        }
+        return res.json();
+      })
       .then((data) => {
-        setStats(data.stats);
-        setLogs(data.logs);
+        if (data) {
+          setStats(data.stats);
+          setLogs(data.logs);
+        }
+      })
+      .catch((err) => {
+        if (err.message.toLowerCase().includes("unauthorized") || err.message.toLowerCase().includes("invalid token")) {
+          localStorage.removeItem("token");
+          router.push("/login");
+        }
       });
   }
 
@@ -112,25 +135,57 @@ export default function Home() {
 
     // Refresh user data and fetch stats
     const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    
     Promise.all([
       fetch("/api/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
-      }).then(res => res.json()),
+      }).then(res => {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          router.push("/login");
+          return null;
+        }
+        return res.json();
+      }),
       fetch("/api/stats", {
         headers: { Authorization: `Bearer ${token}` },
-      }).then(res => res.json())
+      }).then(res => {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          router.push("/login");
+          return null;
+        }
+        return res.json();
+      })
     ])
       .then(([userData, statsData]) => {
-        setUser(userData.user);
-        setStats(statsData.stats);
-        setLogs(statsData.logs);
+        if (userData && statsData) {
+          setUser(userData.user);
+          setStats(statsData.stats);
+          setLogs(statsData.logs);
+        }
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => {
+        setError(err.message);
+        if (err.message.toLowerCase().includes("unauthorized") || err.message.toLowerCase().includes("invalid token")) {
+          localStorage.removeItem("token");
+          router.push("/login");
+        }
+      })
       .finally(() => setLoading(false));
   }
 
   function handleStatUpdate(stat: string, value: number) {
     const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    
     fetch("/api/stats", {
       method: "PATCH",
       headers: {
@@ -139,10 +194,25 @@ export default function Home() {
       },
       body: JSON.stringify({ stat, value }),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          router.push("/login");
+          return null;
+        }
+        return res.json();
+      })
       .then((data) => {
-        setStats(data.stats);
-        setLogs(data.logs);
+        if (data) {
+          setStats(data.stats);
+          setLogs(data.logs);
+        }
+      })
+      .catch((err) => {
+        if (err.message.toLowerCase().includes("unauthorized") || err.message.toLowerCase().includes("invalid token")) {
+          localStorage.removeItem("token");
+          router.push("/login");
+        }
       });
   }
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import * as Tabs from '@radix-ui/react-tabs';
 import { FaCheckCircle } from "react-icons/fa";
 import * as Dialog from '@radix-ui/react-dialog';
+import { useAuthenticatedFetch } from "@/lib/hooks/useAuthenticatedFetch";
 
 interface GeminiQuest {
     title: string;
@@ -65,6 +66,7 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
     const [focusStat, setFocusStat] = useState<string>("");
     const [completed, setCompleted] = useState<CompletedQuestItem[]>([]);
     const statOptions = ["strength", "vitality", "agility", "intelligence", "perception"];
+    const authenticatedFetch = useAuthenticatedFetch();
 
     function refreshQuests() {
         setRefreshKey((k) => k + 1);
@@ -74,27 +76,33 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
         if (!stats || Object.keys(stats).length === 0) return;
         setLoading(true);
         setError("");
-        const token = localStorage.getItem("token");
-        fetch("/api/quests", {
-            headers: { Authorization: `Bearer ${token}` },
-        })
-            .then((res) => res.json())
+        
+        // Fetch quests
+        authenticatedFetch("/api/quests")
+            .then((res) => {
+                if (!res) return; // Token expired, redirected to login
+                return res.json();
+            })
             .then((data) => {
+                if (!data) return; // Token expired, redirected to login
                 if (data.error) throw new Error(data.error);
                 setSections(data);
             })
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
+            
         // Fetch completed quests
-        fetch("/api/quests/completed", {
-            headers: { Authorization: `Bearer ${token}` },
-        })
-            .then((res) => res.json())
+        authenticatedFetch("/api/quests/completed")
+            .then((res) => {
+                if (!res) return; // Token expired, redirected to login
+                return res.json();
+            })
             .then((data) => {
+                if (!data) return; // Token expired, redirected to login
                 if (Array.isArray(data)) setCompleted(data);
             })
             .catch(() => setCompleted([]));
-    }, [stats, refreshKey]);
+    }, [stats, refreshKey, authenticatedFetch]);
 
     async function handleQuestComplete(quest: GeminiQuest) {
         // Parse stat gains from rewards
@@ -108,11 +116,11 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
                 return null;
             })
             .filter(Boolean) as { stat: string; amount: number }[];
+        
         // Call backend to update stats and completedQuests
-        const token = localStorage.getItem("token");
-        const res = await fetch("/api/quests/complete", {
+        const res = await authenticatedFetch("/api/quests/complete", {
             method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 questTitle: quest.title,
                 questDescription: quest.description,
@@ -120,28 +128,33 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
                 statGains
             }),
         });
-        if (res.ok) {
+        
+        if (res && res.ok) {
             const data = await res.json();
             setCompleted(data.completedQuests);
             if (onUserDataChange) onUserDataChange(); // Trigger parent to refresh stats/logs
         }
+        
         setPendingQuest(quest);
         setShowFocusModal(true);
     }
 
     async function handleFocusSubmit() {
         if (!pendingQuest || !focusStat) return;
-        const token = localStorage.getItem("token");
-        await fetch("/api/focus", {
+        
+        const res = await authenticatedFetch("/api/focus", {
             method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ stat: focusStat, questTitle: pendingQuest.title }),
         });
-        setShowFocusModal(false);
-        setFocusStat("");
-        setPendingQuest(null);
-        refreshQuests(); // Refresh UI with updated quests
-        if (onUserDataChange) onUserDataChange(); // Also refresh stats/logs
+        
+        if (res) {
+            setShowFocusModal(false);
+            setFocusStat("");
+            setPendingQuest(null);
+            refreshQuests(); // Refresh UI with updated quests
+            if (onUserDataChange) onUserDataChange(); // Also refresh stats/logs
+        }
     } function isQuestCompleted(quest: string): boolean {
         return completed.some((q: CompletedQuestItem) => q.questTitle === quest);
     }

@@ -1,6 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Badge {
     title: string;
@@ -43,14 +44,40 @@ export default function ProfilePage() {
     const [nextLevelXPRequired, setNextLevelXPRequired] = useState(100);
     const [passives, setPassives] = useState<Passive[]>([]);
     const [titles, setTitles] = useState<Title[]>([]);
+    const router = useRouter();
+
+    function handleLogout() {
+        localStorage.removeItem("token");
+        router.push("/login");
+    }
+
+    // Function to handle token expiration
+    const handleApiCall = useCallback(async (url: string, options?: RequestInit) => {
+        const token = localStorage.getItem("token");
+        const res = await fetch(url, {
+            ...options,
+            headers: {
+                ...options?.headers,
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (res.status === 401) {
+            // Token expired or invalid
+            localStorage.removeItem("token");
+            router.push("/login");
+            return null;
+        }
+
+        return res;
+    }, [router]);
 
     useEffect(() => {
         async function fetchProfile() {
             setLoading(true);
-            const token = localStorage.getItem("token");
-            const res = await fetch("/api/profile", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const res = await handleApiCall("/api/profile");
+            if (!res) return; // Token expired, redirected to login
+            
             const data = await res.json();
             setProfile(data.profile || {});
             setForm(data.profile || {});
@@ -63,19 +90,20 @@ export default function ProfilePage() {
             setLoading(false);
         }
         fetchProfile();
-    }, []);
+    }, [handleApiCall]);
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
         setForm({ ...form, [e.target.name]: e.target.value });
     }
 
     async function handleSave() {
-        const token = localStorage.getItem("token");
-        await fetch("/api/profile", {
+        const res = await handleApiCall("/api/profile", {
             method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(form),
         });
+        if (!res) return; // Token expired, redirected to login
+        
         setProfile(form);
         setEditMode(false);
     }
@@ -86,9 +114,18 @@ export default function ProfilePage() {
         <div className="max-w-2xl mx-auto p-6 bg-gradient-to-br from-[#18181b] via-[#232136] to-[#312e81] rounded-xl border-2 border-indigo-700/40 shadow-xl mt-8">
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold text-indigo-300">My Profile</h1>
-                <Link href="/" className="rounded-full bg-indigo-700 text-white shadow-lg hover:bg-indigo-800 transition border-2 border-indigo-400 w-10 h-10 flex items-center justify-center text-xl" title="Back to Home">
-                    <span role="img" aria-label="back">🏠</span>
-                </Link>
+                <div className="flex gap-2">
+                    <button 
+                        onClick={handleLogout}
+                        className="rounded-full bg-red-700 text-white shadow-lg hover:bg-red-800 transition border-2 border-red-400 w-10 h-10 flex items-center justify-center text-xl" 
+                        title="Logout"
+                    >
+                        <span role="img" aria-label="logout">🚪</span>
+                    </button>
+                    <Link href="/" className="rounded-full bg-indigo-700 text-white shadow-lg hover:bg-indigo-800 transition border-2 border-indigo-400 w-10 h-10 flex items-center justify-center text-xl" title="Back to Home">
+                        <span role="img" aria-label="back">🏠</span>
+                    </Link>
+                </div>
             </div>
             <div className="mb-6">
                 {editMode ? (
