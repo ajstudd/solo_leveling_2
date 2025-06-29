@@ -20,11 +20,25 @@ export async function GET(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
+
+  // Calculate XP required for next level
+  function getXPRequiredForLevel(level: number): number {
+    if (level === 1) return 100;
+    if (level === 2) return 300;
+    if (level === 3) return 600;
+    if (level === 4) return 1000;
+    return level * 300 + (level - 4) * 200;
+  }
+
+  const currentLevel = user.level || 1;
+  const nextLevelXPRequired = getXPRequiredForLevel(currentLevel + 1);
+
   return NextResponse.json({
     profile: user.profile || {},
     badges: user.badges || [],
     xp: user.xp || 0,
     level: user.level || 1,
+    nextLevelXPRequired,
     passives: user.passives || [],
     titles: user.titles || [],
     setupCompleted: user.setupCompleted || false,

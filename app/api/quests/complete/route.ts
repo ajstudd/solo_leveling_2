@@ -41,12 +41,28 @@ export async function POST(req: NextRequest) {
     for (const reward of rewards) {
       if (reward.type === "XP") {
         user.xp = (user.xp || 0) + parseInt(reward.value, 10);
-        // Optional: Level up logic
-        // Example: 100 XP per level
-        while (user.xp >= (user.level || 1) * 100) {
-          user.xp -= (user.level || 1) * 100;
-          user.level = (user.level || 1) + 1;
+
+        // Progressive XP requirement system
+        function getXPRequiredForLevel(level: number): number {
+          if (level === 1) return 100;
+          if (level === 2) return 300;
+          if (level === 3) return 600;
+          if (level === 4) return 1000;
+          // For levels 5+, use formula: level * 300 + (level - 4) * 200
+          return level * 300 + (level - 4) * 200;
         }
+
+        // Check for level ups
+        let currentLevel = user.level || 1;
+        let currentXP = user.xp;
+
+        while (currentXP >= getXPRequiredForLevel(currentLevel + 1)) {
+          currentXP -= getXPRequiredForLevel(currentLevel + 1);
+          currentLevel++;
+        }
+
+        user.level = currentLevel;
+        user.xp = currentXP;
       } else if (reward.type === "Passive") {
         if (!user.passives) user.passives = [];
         if (!user.passives.some((p) => p.title === reward.value)) {

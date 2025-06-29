@@ -40,6 +40,7 @@ export default function ProfilePage() {
     const [form, setForm] = useState<Profile>({});
     const [xp, setXp] = useState(0);
     const [level, setLevel] = useState(1);
+    const [nextLevelXPRequired, setNextLevelXPRequired] = useState(100);
     const [passives, setPassives] = useState<Passive[]>([]);
     const [titles, setTitles] = useState<Title[]>([]);
 
@@ -56,6 +57,7 @@ export default function ProfilePage() {
             setBadges(data.badges || []);
             setXp(data.xp || 0);
             setLevel(data.level || 1);
+            setNextLevelXPRequired(data.nextLevelXPRequired || 100);
             setPassives(data.passives || []);
             setTitles(data.titles || []);
             setLoading(false);
@@ -117,7 +119,16 @@ export default function ProfilePage() {
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 <div className="flex-1 bg-[#232136]/80 rounded-xl p-4 border-2 border-indigo-700/40 shadow-xl flex flex-col items-center">
                     <div className="text-lg font-bold text-indigo-300">Level {level}</div>
-                    <div className="text-indigo-200">XP: {xp}</div>
+                    <div className="text-indigo-200">XP: {xp} / {nextLevelXPRequired}</div>
+                    <div className="w-full bg-zinc-700 rounded-full h-2 mt-2">
+                        <div
+                            className="bg-indigo-500 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${Math.min(100, (xp / nextLevelXPRequired) * 100)}%` }}
+                        ></div>
+                    </div>
+                    <div className="text-xs text-indigo-300 mt-1">
+                        {nextLevelXPRequired - xp} XP to next level
+                    </div>
                 </div>
                 <div className="flex-1 bg-[#232136]/80 rounded-xl p-4 border-2 border-indigo-700/40 shadow-xl">
                     <div className="text-lg font-bold text-indigo-300 mb-2">Passives</div>

@@ -113,7 +113,12 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
         const res = await fetch("/api/quests/complete", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ questTitle: quest.title, rewards: quest.rewards, statGains }),
+            body: JSON.stringify({
+                questTitle: quest.title,
+                questDescription: quest.description,
+                rewards: quest.rewards,
+                statGains
+            }),
         });
         if (res.ok) {
             const data = await res.json();
