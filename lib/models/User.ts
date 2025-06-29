@@ -14,6 +14,7 @@ export interface UserProfile {
 export interface IUser extends Document {
   email: string;
   password: string;
+  setupCompleted: boolean;
   stats: {
     strength: number;
     vitality: number;
@@ -90,6 +91,7 @@ const UserSchema = new Schema<IUser>(
   {
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    setupCompleted: { type: Boolean, default: false },
     stats: {
       strength: { type: Number, default: 1 },
       vitality: { type: Number, default: 1 },

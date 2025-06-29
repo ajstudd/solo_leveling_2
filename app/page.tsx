@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import StatCard from "./components/StatCard";
 import LogList from "./components/LogList";
 import QuestPanel from "./components/QuestPanel";
+import SetupModal from "./components/SetupModal";
 import { useRouter } from "next/navigation";
 
 type StatKey = "strength" | "vitality" | "agility" | "intelligence" | "perception";
@@ -31,11 +32,21 @@ interface Log {
   changedAt: string;
 }
 
+interface User {
+  _id: string;
+  email: string;
+  setupCompleted: boolean;
+  stats: Stats;
+  [key: string]: unknown;
+}
+
 export default function Home() {
   const [stats, setStats] = useState<Stats>({} as Stats);
   const [logs, setLogs] = useState<Log[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showSetupModal, setShowSetupModal] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -44,11 +55,34 @@ export default function Home() {
       router.push("/login");
       return;
     }
-    fetch("/api/stats", {
+
+    // First, check user status
+    fetch("/api/auth/me", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => {
+        if (data.error) throw new Error(data.error);
+        setUser(data.user);
+
+        // Check if setup is needed
+        if (!data.user.setupCompleted) {
+          setShowSetupModal(true);
+          setLoading(false);
+          return;
+        }
+
+        // If setup is complete, fetch stats
+        return fetch("/api/stats", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      })
+      .then((res) => {
+        if (!res) return; // Setup modal is showing
+        return res.json();
+      })
+      .then((data) => {
+        if (!data) return; // Setup modal is showing
         if (data.error) throw new Error(data.error);
         setStats(data.stats);
         setLogs(data.logs);
@@ -70,6 +104,29 @@ export default function Home() {
         setStats(data.stats);
         setLogs(data.logs);
       });
+  }
+
+  function handleSetupComplete() {
+    setShowSetupModal(false);
+    setLoading(true);
+
+    // Refresh user data and fetch stats
+    const token = localStorage.getItem("token");
+    Promise.all([
+      fetch("/api/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(res => res.json()),
+      fetch("/api/stats", {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(res => res.json())
+    ])
+      .then(([userData, statsData]) => {
+        setUser(userData.user);
+        setStats(statsData.stats);
+        setLogs(statsData.logs);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }
 
   function handleStatUpdate(stat: string, value: number) {
@@ -96,8 +153,17 @@ export default function Home() {
         <div className="text-xl animate-pulse">Loading...</div>
       ) : error ? (
         <div className="text-pink-400 font-bold">{error}</div>
+      ) : user && !user.setupCompleted ? (
+        <SetupModal
+          isOpen={showSetupModal}
+          onComplete={handleSetupComplete}
+        />
       ) : (
         <>
+          <SetupModal
+            isOpen={showSetupModal}
+            onComplete={handleSetupComplete}
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10 w-full max-w-4xl">
             {statNames.map((stat) => (
               <StatCard

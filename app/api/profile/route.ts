@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   }
   await connectToDB();
   const user = await User.findById(payload.userId).select(
-    "profile badges xp level passives titles"
+    "profile badges xp level passives titles setupCompleted"
   );
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
     level: user.level || 1,
     passives: user.passives || [],
     titles: user.titles || [],
+    setupCompleted: user.setupCompleted || false,
   });
 }
 
