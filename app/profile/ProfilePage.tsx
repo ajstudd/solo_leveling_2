@@ -77,7 +77,7 @@ export default function ProfilePage() {
             setLoading(true);
             const res = await handleApiCall("/api/profile");
             if (!res) return; // Token expired, redirected to login
-            
+
             const data = await res.json();
             setProfile(data.profile || {});
             setForm(data.profile || {});
@@ -103,7 +103,7 @@ export default function ProfilePage() {
             body: JSON.stringify(form),
         });
         if (!res) return; // Token expired, redirected to login
-        
+
         setProfile(form);
         setEditMode(false);
     }
@@ -115,9 +115,9 @@ export default function ProfilePage() {
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold text-indigo-300">My Profile</h1>
                 <div className="flex gap-2">
-                    <button 
+                    <button
                         onClick={handleLogout}
-                        className="rounded-full bg-red-700 text-white shadow-lg hover:bg-red-800 transition border-2 border-red-400 w-10 h-10 flex items-center justify-center text-xl" 
+                        className="rounded-full bg-red-700 text-white shadow-lg hover:bg-red-800 transition border-2 border-red-400 w-10 h-10 flex items-center justify-center text-xl"
                         title="Logout"
                     >
                         <span role="img" aria-label="logout">🚪</span>

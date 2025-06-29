@@ -103,7 +103,7 @@ export default function Home() {
       router.push("/login");
       return;
     }
-    
+
     fetch("/api/stats", {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -139,7 +139,7 @@ export default function Home() {
       router.push("/login");
       return;
     }
-    
+
     Promise.all([
       fetch("/api/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
@@ -185,7 +185,7 @@ export default function Home() {
       router.push("/login");
       return;
     }
-    
+
     fetch("/api/stats", {
       method: "PATCH",
       headers: {

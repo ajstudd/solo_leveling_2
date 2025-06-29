@@ -76,7 +76,7 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
         if (!stats || Object.keys(stats).length === 0) return;
         setLoading(true);
         setError("");
-        
+
         // Fetch quests
         authenticatedFetch("/api/quests")
             .then((res) => {
@@ -90,7 +90,7 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
             })
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
-            
+
         // Fetch completed quests
         authenticatedFetch("/api/quests/completed")
             .then((res) => {
@@ -116,7 +116,7 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
                 return null;
             })
             .filter(Boolean) as { stat: string; amount: number }[];
-        
+
         // Call backend to update stats and completedQuests
         const res = await authenticatedFetch("/api/quests/complete", {
             method: "POST",
@@ -128,26 +128,26 @@ export default function QuestPanel({ stats, onUserDataChange }: QuestPanelProps)
                 statGains
             }),
         });
-        
+
         if (res && res.ok) {
             const data = await res.json();
             setCompleted(data.completedQuests);
             if (onUserDataChange) onUserDataChange(); // Trigger parent to refresh stats/logs
         }
-        
+
         setPendingQuest(quest);
         setShowFocusModal(true);
     }
 
     async function handleFocusSubmit() {
         if (!pendingQuest || !focusStat) return;
-        
+
         const res = await authenticatedFetch("/api/focus", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ stat: focusStat, questTitle: pendingQuest.title }),
         });
-        
+
         if (res) {
             setShowFocusModal(false);
             setFocusStat("");

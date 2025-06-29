@@ -66,3 +66,63 @@ body {
 ::-webkit-scrollbar-corner {
   background: #18181b;
 }
+
+/* Solo Leveling Animation Effects */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px #2196f3, 0 0 40px #2196f3, 0 0 60px #2196f3;
+  }
+  50% {
+    box-shadow: 0 0 30px #00bcd4, 0 0 60px #00bcd4, 0 0 90px #00bcd4;
+  }
+}
+
+@keyframes deathPulse {
+  0%,
+  100% {
+    color: #ef4444;
+    text-shadow: 0 0 10px #ef4444;
+  }
+  50% {
+    color: #dc2626;
+    text-shadow: 0 0 20px #dc2626, 0 0 30px #dc2626;
+  }
+}
+
+@keyframes heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-modal-glow {
+  animation: modalGlow 2s ease-in-out infinite;
+}
+
+.animate-death-pulse {
+  animation: deathPulse 1s ease-in-out infinite;
+}
+
+.animate-heartbeat {
+  animation: heartbeat 0.6s ease-in-out infinite;
+}
